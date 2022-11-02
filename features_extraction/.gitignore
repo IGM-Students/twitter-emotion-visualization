@@ -69,16 +69,3 @@ docs/_build/
 
 # PyBuilder
 target/
-
-# dependencies
-/node_modules
-
-# testing
-/coverage
-
-# production
-/build
-
-# misc
-.env
-npm-debug.log
