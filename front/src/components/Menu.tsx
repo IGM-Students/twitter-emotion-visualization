@@ -1,5 +1,15 @@
 import NavigateNext from "@mui/icons-material/NavigateNext";
-import { Box, Button, Fab, List, ListItem, Stack, TextField, Typography } from "@mui/material";
+import {
+    Box,
+    Button,
+    Fab,
+    List,
+    ListItem,
+    Slider,
+    Stack,
+    TextField,
+    Typography,
+} from "@mui/material";
 import Checkbox from "@mui/material/Checkbox";
 import Drawer from "@mui/material/Drawer";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -7,16 +17,28 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import { HashtagType } from "data/hashtag";
 import { useState } from "react";
+import { getFetch } from "utils/fetches";
 
 type Props = {
     hashtags: HashtagType[];
+    setHashtags: (hashtags: HashtagType[]) => void;
     activeHashtags: string[];
     setActiveHashtags: (activeHashtags: string[]) => void;
 };
 
-export default function SideBar({ hashtags, activeHashtags, setActiveHashtags }: Props) {
+export default function SideBar({
+    hashtags,
+    setHashtags,
+    activeHashtags,
+    setActiveHashtags,
+}: Props) {
     const [open, setOpen] = useState(true);
     const [newHashtag, setNewHashtag] = useState("");
+    const [numberOfTweets, setNumberOfTweets] = useState<number>(100);
+
+    const handleChange = (event: Event, newValue: number | number[]) => {
+        setNumberOfTweets(newValue as number);
+    };
 
     const handleToggle = (value: string) => () => {
         const currentIndex = activeHashtags.indexOf(value);
@@ -47,10 +69,22 @@ export default function SideBar({ hashtags, activeHashtags, setActiveHashtags }:
                                 inputProps={{ "aria-labelledby": labelId }}
                             />
                         </ListItemIcon>
-                        <ListItemText id={labelId} primary={value.text} />
+                        <ListItemText id={labelId} primary={value.title} />
                     </ListItemButton>
                 </ListItem>
             );
+        });
+    };
+
+    const addHashtag = () => {
+        console.log(numberOfTweets);
+        getFetch<HashtagType>(
+            `/twitts?hashtag=${newHashtag}&limit=${numberOfTweets}&components=2`
+        ).then((hashtag) => {
+            console.log(hashtag);
+            hashtag.title = hashtag.title + " " + hashtag.tweets.length;
+            setHashtags([...hashtags, hashtag]);
+            setActiveHashtags([hashtag.id]);
         });
     };
 
@@ -79,16 +113,35 @@ export default function SideBar({ hashtags, activeHashtags, setActiveHashtags }:
                         <TextField
                             label="Hashtag"
                             variant="outlined"
-                            sx={{ mt: 2 }}
+                            sx={{ my: 2 }}
                             value={newHashtag}
                             onChange={(e) => setNewHashtag(e.target.value)}
                             fullWidth
                         />
-                        <Button variant="outlined" sx={{ mt: 0.5 }} fullWidth>
+                        <Typography variant="h6" color="primary">
+                            Liczba postów
+                        </Typography>
+                        <Slider
+                            marks
+                            min={25}
+                            step={25}
+                            max={1000}
+                            aria-label="Default"
+                            valueLabelDisplay="auto"
+                            value={numberOfTweets}
+                            onChange={handleChange}
+                        />
+                        <Button
+                            variant="outlined"
+                            sx={{ mt: 0.5 }}
+                            fullWidth
+                            onClick={addHashtag}
+                            disabled={newHashtag.length < 3}
+                        >
                             Dodaj
                         </Button>
 
-                        <Typography variant="h3" color="primary" mt={2}>
+                        <Typography variant="h4" color="primary" mt={2}>
                             Hashtags
                         </Typography>
                         <List
@@ -99,7 +152,7 @@ export default function SideBar({ hashtags, activeHashtags, setActiveHashtags }:
                                 bgcolor: "background.paper",
                             }}
                         >
-                            {generateHashtags()}
+                            {hashtags ? generateHashtags() : "Brak hashtagów"}
                         </List>
                     </Stack>
                 </Box>

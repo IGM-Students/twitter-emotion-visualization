@@ -19,9 +19,12 @@ function pickTextColorBasedOnBgColorSimple(bgColor, lightColor, darkColor) {
 }
 
 function BubbleChart({ hashtags, activeHashtags }: Props) {
-    const activeHashtagsData = hashtags.filter((hashtag) => {
-        return activeHashtags.indexOf(hashtag.id) !== -1;
-    });
+    let activeHashtagsData = [] as HashtagType[];
+    if (hashtags) {
+        activeHashtagsData = hashtags.filter((hashtag) => {
+            return activeHashtags.indexOf(hashtag.id) !== -1;
+        });
+    }
 
     useLayoutEffect(() => {
         // https://www.amcharts.com/docs/v5/getting-started/#Root_element
@@ -96,12 +99,15 @@ function BubbleChart({ hashtags, activeHashtags }: Props) {
         });
 
         for (const hashtag of activeHashtagsData) {
+            // console.log(hashtag.tweets[0].clasiffication.);
+            // console.log(hashtag.tweets[0].clasiffication[1]);
+
             const textColor = pickTextColorBasedOnBgColorSimple(
                 hashtag.color,
                 "#ffffff",
                 "#000000"
             );
-            console.log(textColor);
+
             // https://www.amcharts.com/docs/v5/charts/xy-chart/series/
             let series = chart.series.push(
                 am5xy.LineSeries.new(root, {
@@ -112,18 +118,18 @@ function BubbleChart({ hashtags, activeHashtags }: Props) {
                     valueYField: "y",
                     fill: am5.color(hashtag.color),
                     tooltip: am5.Tooltip.new(root, {
-                        labelText: `Hashtag - ${hashtag.text}\nTwitt:\n{text}`,
-                        labelHTML: `<p style="color:${textColor};">Hashtag - ${hashtag.text}<br/>
-                        Twitt:\n<p style="max-width: 500px;color:${textColor};">{text}<p/></p>`,
+                        labelText: `Hashtag - ${hashtag.title}\nTwitt:\n{text}`,
+                        labelHTML: `<p style="color:${textColor};">Hashtag - ${hashtag.title}<br/>
+                        Twitt:\n<p style="max-width: 500px;color:${textColor};">{twitt}<p/></p>`,
                     }),
-                    legendLabelText: `${hashtag.text}`,
+                    legendLabelText: `${hashtag.title}`,
                 })
             );
 
             // https://www.amcharts.com/docs/v5/charts/xy-chart/series/#Bullets
             series.bullets.push(function () {
                 let graphics = am5.Circle.new(root, {
-                    radius: 5,
+                    radius: 6,
                     fill: series.get("fill"),
                 });
                 return am5.Bullet.new(root, {
@@ -131,7 +137,7 @@ function BubbleChart({ hashtags, activeHashtags }: Props) {
                 });
             });
 
-            series.data.setAll(hashtag.twitts);
+            series.data.setAll(hashtag.tweets);
         }
 
         legend.data.setAll(chart.series.values);
