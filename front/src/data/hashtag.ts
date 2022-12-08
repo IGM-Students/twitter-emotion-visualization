@@ -1,6 +1,6 @@
 export type TwittType = {
     user: string;
-    twitt: string;
+    tweet: string;
     clasiffication: [number, number];
 };
 

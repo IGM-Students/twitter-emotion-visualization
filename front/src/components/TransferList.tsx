@@ -1,3 +1,4 @@
+import { Slider, Stack, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import Checkbox from "@mui/material/Checkbox";
 import Grid from "@mui/material/Grid";
@@ -7,9 +8,9 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import Paper from "@mui/material/Paper";
 import { HashtagType } from "data/hashtag";
-import * as React from "react";
-import { getFetch } from "utils/fetches";
-import AddHashtag from "./AddHashtag";
+import { useState } from "react";
+import { postFetch } from "utils/fetches";
+import { v4 as uuidv4 } from "uuid";
 
 type Props = {
     hashtags: HashtagType[];
@@ -25,9 +26,22 @@ function intersection(a: readonly HashtagType[], b: readonly HashtagType[]) {
 }
 
 export default function TransferList({ hashtags, setHashtags }: Props) {
-    const [checked, setChecked] = React.useState<readonly HashtagType[]>([]);
-    const [up, setUp] = React.useState<readonly HashtagType[]>(hashtags);
-    const [down, setDown] = React.useState<readonly HashtagType[]>([]);
+    const [checked, setChecked] = useState<readonly HashtagType[]>([]);
+    const [up, setUp] = useState<readonly HashtagType[]>(hashtags);
+    const [down, setDown] = useState<readonly HashtagType[]>([]);
+
+    const [numberOfTweets, setNumberOfTweets] = useState<number>(100);
+    const [newHashtag, setNewHashtag] = useState("");
+
+    const handleAddButton = () => {
+        addNewHashtag({
+            id: uuidv4(),
+            color: "#000000",
+            title: newHashtag,
+            tweets: [],
+        });
+        setNewHashtag("");
+    };
 
     const upChecked = intersection(checked, up);
     const downChecked = intersection(checked, down);
@@ -71,15 +85,23 @@ export default function TransferList({ hashtags, setHashtags }: Props) {
         setDown(down.concat(newHashtag));
     };
 
-    const newChart = () => {
-        console.log(down);
+    const handleChange = (event: Event, newValue: number | number[]) => {
+        setNumberOfTweets(newValue as number);
+    };
 
-        // getFetch<HashtagType[]>(
-        //     `/twitts?hashtag=${newHashtag}&limit=${numberOfTweets}&components=2`
-        // ).then((hashtags) => {
-        //     // hashtag.title = hashtag.title + " " + hashtag.tweets.length;
-        //     setHashtags(hashtags);
-        // });
+    const newChart = () => {
+        // console.log(down);
+        const hashtag = down.map((hashtag) => {
+            return hashtag.title;
+        });
+        console.log(hashtags);
+        console.log(numberOfTweets);
+
+        postFetch<HashtagType[]>({ hashtag }, `/hashtags?limit=${numberOfTweets}`).then(
+            (hashtags) => {
+                setHashtags(hashtags);
+            }
+        );
     };
 
     const customList = (items: readonly HashtagType[]) => (
@@ -165,18 +187,49 @@ export default function TransferList({ hashtags, setHashtags }: Props) {
                 </Grid>
             </Grid>
             <Grid item>{customList(down)}</Grid>
+            <Stack>
+                <TextField
+                    label="Dodaj nowy hashtag"
+                    variant="outlined"
+                    sx={{ my: 1 }}
+                    value={newHashtag}
+                    onChange={(e) => setNewHashtag(e.target.value)}
+                    fullWidth
+                />
+                <Button
+                    variant="outlined"
+                    sx={{ mt: 0.5, mb: 1 }}
+                    fullWidth
+                    onClick={handleAddButton}
+                    disabled={newHashtag.length < 3}
+                >
+                    Dodaj
+                </Button>
 
-            <Button
-                variant="outlined"
-                sx={{ mt: 0.5, mx: 1 }}
-                fullWidth
-                disabled={down.length < 2}
-                onClick={newChart}
-            >
-                Generuj Nowy wykres
-            </Button>
+                <Typography variant="h6" color="primary">
+                    Liczba twettów
+                </Typography>
+                <Slider
+                    marks
+                    min={25}
+                    step={25}
+                    max={1000}
+                    aria-label="Default"
+                    valueLabelDisplay="auto"
+                    value={numberOfTweets}
+                    onChange={handleChange}
+                />
 
-            <AddHashtag addNewHashtag={addNewHashtag} />
+                <Button
+                    variant="outlined"
+                    sx={{ mt: 0.5 }}
+                    fullWidth
+                    disabled={down.length < 2}
+                    onClick={newChart}
+                >
+                    Generuj Nowy wykres
+                </Button>
+            </Stack>
         </Grid>
     );
 }

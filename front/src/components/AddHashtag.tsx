@@ -1,4 +1,4 @@
-import { Button, Slider, Stack, TextField, Typography } from "@mui/material";
+import { Button, Stack, TextField } from "@mui/material";
 import { HashtagType } from "data/hashtag";
 import { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -9,11 +9,6 @@ type Props = {
 
 function AddHashtag({ addNewHashtag }: Props) {
     const [newHashtag, setNewHashtag] = useState("");
-    const [numberOfTweets, setNumberOfTweets] = useState<number>(100);
-
-    const handleChange = (event: Event, newValue: number | number[]) => {
-        setNumberOfTweets(newValue as number);
-    };
 
     const handleAddButton = () => {
         addNewHashtag({
@@ -34,19 +29,6 @@ function AddHashtag({ addNewHashtag }: Props) {
                 value={newHashtag}
                 onChange={(e) => setNewHashtag(e.target.value)}
                 fullWidth
-            />
-            <Typography variant="h6" color="primary">
-                Liczba twettów
-            </Typography>
-            <Slider
-                marks
-                min={25}
-                step={25}
-                max={1000}
-                aria-label="Default"
-                valueLabelDisplay="auto"
-                value={numberOfTweets}
-                onChange={handleChange}
             />
             <Button
                 variant="outlined"

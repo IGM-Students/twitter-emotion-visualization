@@ -109,7 +109,7 @@ function BubbleChart({ hashtags }: Props) {
                     tooltip: am5.Tooltip.new(root, {
                         labelText: `Hashtag - ${hashtag.title}\nTwitt:\n{text}`,
                         labelHTML: `<p style="color:${textColor};">Hashtag - ${hashtag.title}<br/>
-                        Twitt:\n<p style="max-width: 500px;color:${textColor};">{twitt}<p/></p>`,
+                        Twitt:\n<p style="max-width: 500px;color:${textColor};">{tweet}<p/></p>`,
                     }),
                     legendLabelText: `${hashtag.title}`,
                 })
