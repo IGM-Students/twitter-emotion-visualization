@@ -7,7 +7,6 @@ import { useLayoutEffect } from "react";
 
 type Props = {
     hashtags: HashtagType[];
-    activeHashtags: string[];
 };
 
 function pickTextColorBasedOnBgColorSimple(bgColor, lightColor, darkColor) {
@@ -18,14 +17,7 @@ function pickTextColorBasedOnBgColorSimple(bgColor, lightColor, darkColor) {
     return r * 0.299 + g * 0.587 + b * 0.114 > 186 ? darkColor : lightColor;
 }
 
-function BubbleChart({ hashtags, activeHashtags }: Props) {
-    let activeHashtagsData = [] as HashtagType[];
-    if (hashtags) {
-        activeHashtagsData = hashtags.filter((hashtag) => {
-            return activeHashtags.indexOf(hashtag.id) !== -1;
-        });
-    }
-
+function BubbleChart({ hashtags }: Props) {
     useLayoutEffect(() => {
         // https://www.amcharts.com/docs/v5/getting-started/#Root_element
         const root = am5.Root.new("chartdiv");
@@ -98,10 +90,7 @@ function BubbleChart({ hashtags, activeHashtags }: Props) {
             visible: false,
         });
 
-        for (const hashtag of activeHashtagsData) {
-            // console.log(hashtag.tweets[0].clasiffication.);
-            // console.log(hashtag.tweets[0].clasiffication[1]);
-
+        for (const hashtag of hashtags) {
             const textColor = pickTextColorBasedOnBgColorSimple(
                 hashtag.color,
                 "#ffffff",
@@ -120,7 +109,7 @@ function BubbleChart({ hashtags, activeHashtags }: Props) {
                     tooltip: am5.Tooltip.new(root, {
                         labelText: `Hashtag - ${hashtag.title}\nTwitt:\n{text}`,
                         labelHTML: `<p style="color:${textColor};">Hashtag - ${hashtag.title}<br/>
-                        Twitt:\n<p style="max-width: 500px;color:${textColor};">{twitt}<p/></p>`,
+                        Twitt:\n<p style="max-width: 500px;color:${textColor};">{tweet}<p/></p>`,
                     }),
                     legendLabelText: `${hashtag.title}`,
                 })
@@ -144,7 +133,7 @@ function BubbleChart({ hashtags, activeHashtags }: Props) {
         return () => {
             root.dispose();
         };
-    }, [activeHashtagsData]);
+    }, [hashtags]);
 
     return (
         <div id="chartdiv" style={{ width: "100vw", height: "100vh", background: "black" }}></div>

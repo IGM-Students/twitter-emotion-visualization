@@ -6,27 +6,20 @@ import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
 
 function App() {
-    const [hashtags, setHashtags] = useState<HashtagType[]>();
-    const [activeHashtags, setActiveHashtags] = useState<string[]>([]);
+    const [hashtags, setHashtags] = useState<HashtagType[]>([]);
 
     useEffect(() => {
         fetch("default.json")
             .then((response) => response.json())
             .then((data) => {
-                console.log(data);
                 setHashtags(data);
             });
     }, []);
 
     return (
         <>
-            <Menu
-                hashtags={hashtags}
-                setHashtags={setHashtags}
-                activeHashtags={activeHashtags}
-                setActiveHashtags={setActiveHashtags}
-            />
-            <BubbleChart hashtags={hashtags} activeHashtags={activeHashtags} />
+            <Menu hashtags={hashtags} setHashtags={setHashtags} />
+            <BubbleChart hashtags={hashtags} />
             <Toaster
                 position="bottom-center"
                 gutter={10}
