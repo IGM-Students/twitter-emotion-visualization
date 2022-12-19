@@ -12,9 +12,22 @@ import pandas as pd
 import torch
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import sklearn
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import StandardScaler, MinMaxScaler, Normalizer
 from sklearn.decomposition import PCA
 from flask_cors import CORS
+import pickle
+
+with open("models/pca_2_dim.pkl", 'rb') as pca_2_dim:
+    pca_2D = pickle.load(pca_2_dim)
+
+with open("models/pca_3_dim.pkl", 'rb') as pca_3_dim:
+    pca_3D = pickle.load(pca_3_dim)
+
+with open("models/pca_whiten_2_dim.pkl", 'rb') as pca_whiten_2_dim:
+    whiten_pca_2D = pickle.load(pca_whiten_2_dim)
+
+with open("models/pca_whiten_3_dim.pkl", 'rb') as pca_whiten_3_dim:
+    whiten_pca_3D = pickle.load(pca_whiten_3_dim)
 
 if torch.cuda.is_available():
     device = torch.device('cuda')
@@ -78,12 +91,15 @@ def Get_Features(twitts):
 
 
 def Get_PCA(features, nComponents):
-    standarizedFeatures = StandardScaler().fit_transform(features[:,:])
-    pca = PCA(n_components=nComponents)
-    principalComponents = pca.fit_transform(standarizedFeatures)
+    # standarizedFeatures = StandardScaler().fit_transform(features[:,:])
+    normal_transform = Normalizer(norm='l2').fit(features)
+    normalizedFeatures = normal_transform.transform(features)
+    pca_transformer = pca_2D if nComponents == 2 else pca_3D
+    principalComponents = pca_transformer.transform(normalizedFeatures)
     principalComponents = pd.DataFrame(data = principalComponents)
-    scaler = MinMaxScaler(feature_range=(-1, 1))
-    principalComponents = pd.DataFrame(data = scaler.fit_transform(principalComponents))
+    # scaler = MinMaxScaler(feature_range=(-1, 1))
+    # principalComponents = pd.DataFrame(data = scaler.fit_transform(principalComponents))
+    principalComponents = pd.DataFrame(data = principalComponents)
     return principalComponents
 
 def Clasifficate(twitts, components):
