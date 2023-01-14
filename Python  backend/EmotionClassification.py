@@ -39,8 +39,8 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSequenceClassification.from_pretrained(model_name)
 model.to(device)
 features = {}
-colors = ['#f032e6', '#469990', '#000075', '#e6194B', '#f58231', '#ffe119', '#bfef45', '#3cb44b', '#800000', '#9A6324'
-'#42d4f4', '#4363d8', '#911eb4', '#a9a9a9', '#fabed4', '#ffd8b1', '#fffac8', '#aaffc3', '#dcbeff']
+colors = ['#f032e6', '#ffe119', '#42d4f4', '#e6194B', '#469990', '#000075', '#f58231', '#bfef45', '#3cb44b', '#800000', '#9A6324',
+'#4363d8', '#911eb4', '#a9a9a9', '#fabed4', '#ffd8b1', '#fffac8', '#aaffc3', '#dcbeff']
 
 
 def get_features(name):
