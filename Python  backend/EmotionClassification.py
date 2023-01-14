@@ -64,17 +64,18 @@ def Get_Twitts(hashtag, limit):
     tweetArray = tweetArray[:limit]
     return tweetArray
 
-def CreateMasterTwittList(hashtags, limit):
-    masterTwittList = []
+def LoadTweets(hashtags, limit, mahalanobisHashtag):
+    masterTweetList = []
     for hashtag in hashtags:
         tweets = Get_Twitts(hashtag, limit)
         tweetList = tweets['tweet'].tolist()
         userList = tweets['username'].tolist()
         i =0
         for element in tweetList:
-            masterTwittList.append(tweet(hashtag,userList[i], element, 0, 0))
+            masterTweetList.append(tweet(hashtag,userList[i], element, 0, 0))
             i+=1
-    return masterTwittList
+    mahalanobisTweets = list(filter(lambda item: item['hashtag'] == mahalanobisHashtag, masterTweetList))
+    return masterTweetList, mahalanobisTweets
 
 def Get_Features(twitts):
     PREDICTIONS = []
@@ -90,6 +91,37 @@ def Get_Features(twitts):
     return np.concatenate(FEATS)
 
 
+def CalculateMahalanobis(twitts, hashtag, components):
+    tweets = []
+    for o in twitts:
+        tweets.append(o['tweet'])
+    features = Get_Features(tweets)
+    normal_transform = Normalizer(norm='l2').fit(features)
+    normalizedFeatures = normal_transform.transform(features)
+    df = pd.DataFrame(normalizedFeatures)
+    data = df[list(range(0, 768))]
+
+    y_mu = df - np.mean(data)
+    cov = np.cov(data.values.T)
+    inv_covmat = np.linalg.inv(cov)
+    left = np.dot(y_mu, inv_covmat)
+    mahal = np.dot(left, y_mu.T)
+    df['CalculateMahalanobis'] = abs(mahal.diagonal())
+    df = df.nlargest(5, ['CalculateMahalanobis'])
+    df.drop(columns=['CalculateMahalanobis'])
+
+    outTweets = []
+
+    for i in df.index:
+        outTweets.append(twitts[i])
+
+    clasifficatedTweets = Clasifficate(outTweets, 2)
+
+    for tweet in clasifficatedTweets:
+        tweet['hashtag'] = hashtag + '-outliers'
+    return clasifficatedTweets
+
+
 def Get_PCA(features, nComponents):
     # standarizedFeatures = StandardScaler().fit_transform(features[:,:])
     normal_transform = Normalizer(norm='l2').fit(features)
@@ -99,7 +131,6 @@ def Get_PCA(features, nComponents):
     principalComponents = pd.DataFrame(data = principalComponents)
     # scaler = MinMaxScaler(feature_range=(-1, 1))
     # principalComponents = pd.DataFrame(data = scaler.fit_transform(principalComponents))
-    principalComponents = pd.DataFrame(data = principalComponents)
     return principalComponents
 
 def Clasifficate(twitts, components):
@@ -114,7 +145,7 @@ def Clasifficate(twitts, components):
         o['y'] = results[idx][1]
         idx = idx + 1
     return twitts
-    
+
 
 def Get_EmotionClasiffication(twitts):
     classifier = pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base", top_k=None)
@@ -190,9 +221,14 @@ def test():
     values = request.get_json()
     hashtags = JsonToList(values)
     limit = request.args.get('limit')
-    createMasterTwittList = CreateMasterTwittList(hashtags, int(limit))
-    twittList = DeEmojify(createMasterTwittList)
-    tweets = Clasifficate(twittList, 2)
+    mahalanobisHashtag = request.args.get('mahalanobisHashtag')
+    loadedTweets, loadedMahalanobisTweets = LoadTweets(hashtags, int(limit), mahalanobisHashtag)
+    tweetsList = DeEmojify(loadedTweets)
+    mahalanobisTweets = DeEmojify(loadedMahalanobisTweets)
+    tweets = Clasifficate(tweetsList, 2)
+    CalculateMahalanobis(mahalanobisTweets, mahalanobisHashtag, 2)
+
+    hashtags.append(mahalanobisHashtag + '-outliers')
     hashtagClasses = []
     for hashtag in hashtags:
         results = list(filter(lambda item: item['hashtag'] == hashtag, tweets))
@@ -200,6 +236,5 @@ def test():
         hashtagClasses.append(hashtagClass(str(uuid.uuid4()), hashtag, color, results))
 
     return Response(json.dumps(hashtagClasses, cls=JSONEncoder,indent=4), mimetype='application/json')
-
 
 app.run(debug=True)
