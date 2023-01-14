@@ -102,7 +102,7 @@ export default function TransferList({ hashtags, setHashtags, pca, norm}: Props)
         console.log("PCA: ", pca().toString());
         console.log("Norm: ", norm().toString());
 
-        postFetch<HashtagType[]>({ hashtag }, `/hashtags?limit=${numberOfTweets}&pca=${pca()}&norm=${norm()}`).then(
+        postFetch<HashtagType[]>({ hashtag }, `/hashtags?limit=${numberOfTweets}&mahalanobisHashtag=happy&pca=${pca()}&norm=${norm()}`).then(
             (hashtags) => {
                 setHashtags(hashtags);
             }
