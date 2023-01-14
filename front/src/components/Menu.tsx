@@ -1,9 +1,10 @@
 import NavigateNext from "@mui/icons-material/NavigateNext";
-import { Box, Fab, Stack, Typography } from "@mui/material";
+import { Box, Fab, Stack, Typography, Button } from "@mui/material";
 import Drawer from "@mui/material/Drawer";
 import { HashtagType } from "data/hashtag";
 import { useState } from "react";
 import TransferList from "./TransferList";
+import RowRadioButtonsGroup from "./RowRadioButtonsGroup";
 
 type Props = {
     hashtags: HashtagType[];
@@ -12,6 +13,19 @@ type Props = {
 
 export default function SideBar({ hashtags, setHashtags }: Props) {
     const [open, setOpen] = useState(false);
+    const [pca, setPca] = useState("Standard PCA");
+    const [norm, setNorm] = useState("Not normalized");
+
+    const pcaOptions = ["Standard PCA", "Whiten PCA"]
+    const outputOptions = ["Not normalized", "Normalized"]
+
+    function getPcaOption() {
+        return pcaOptions.indexOf(pca);
+    }
+
+    function getNormOption() {
+        return outputOptions.indexOf(norm);
+    }
 
     return (
         <>
@@ -35,8 +49,14 @@ export default function SideBar({ hashtags, setHashtags }: Props) {
                         <Typography variant="h2" color="primary">
                             Menu
                         </Typography>
-
-                        <TransferList hashtags={hashtags} setHashtags={setHashtags} />
+                        <RowRadioButtonsGroup title={"PCA version"} options={pcaOptions} setOption={setPca} />
+                        <RowRadioButtonsGroup title={"Norm output"} options={outputOptions} setOption={setNorm} />
+                        <TransferList
+                            hashtags={hashtags}
+                            setHashtags={setHashtags}
+                            pca={getPcaOption}
+                            norm={getNormOption}
+                        />
                     </Stack>
                 </Box>
             </Drawer>

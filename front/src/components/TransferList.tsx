@@ -15,6 +15,8 @@ import { v4 as uuidv4 } from "uuid";
 type Props = {
     hashtags: HashtagType[];
     setHashtags: (hashtags: HashtagType[]) => void;
+    pca: () => number;
+    norm: () => number;
 };
 
 function not(a: readonly HashtagType[], b: readonly HashtagType[]) {
@@ -25,7 +27,7 @@ function intersection(a: readonly HashtagType[], b: readonly HashtagType[]) {
     return a.filter((value) => b.indexOf(value) !== -1);
 }
 
-export default function TransferList({ hashtags, setHashtags }: Props) {
+export default function TransferList({ hashtags, setHashtags, pca, norm}: Props) {
     const [checked, setChecked] = useState<readonly HashtagType[]>([]);
     const [up, setUp] = useState<readonly HashtagType[]>(hashtags);
     const [down, setDown] = useState<readonly HashtagType[]>([]);
@@ -97,7 +99,10 @@ export default function TransferList({ hashtags, setHashtags }: Props) {
         console.log(hashtags);
         console.log(numberOfTweets);
 
-        postFetch<HashtagType[]>({ hashtag }, `/hashtags?limit=${numberOfTweets}`).then(
+        console.log("PCA: ", pca().toString());
+        console.log("Norm: ", norm().toString());
+
+        postFetch<HashtagType[]>({ hashtag }, `/hashtags?limit=${numberOfTweets}&pca=${pca()}&norm=${norm()}`).then(
             (hashtags) => {
                 setHashtags(hashtags);
             }

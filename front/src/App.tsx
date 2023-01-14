@@ -9,7 +9,7 @@ function App() {
     const [hashtags, setHashtags] = useState<HashtagType[]>([]);
 
     useEffect(() => {
-        fetch("default.json")
+        fetch("notWhitenPCA2D.json")//notWhitenPCA2D
             .then((response) => response.json())
             .then((data) => {
                 setHashtags(data);
