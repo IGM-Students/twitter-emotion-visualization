@@ -114,7 +114,7 @@ def Clasifficate(twitts, components):
         o['y'] = results[idx][1]
         idx = idx + 1
     return twitts
-    
+
 
 def Get_EmotionClasiffication(twitts):
     classifier = pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base", top_k=None)
