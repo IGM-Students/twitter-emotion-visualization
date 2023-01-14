@@ -150,7 +150,6 @@ def Clasifficate(twitts, components, pca, norm):
     for o in twitts:
         tweets.append(o['tweet'])
     resultsPd = Get_PCA(Get_Features(tweets), int(components), pca, norm)
-    print(resultsPd)
     results = resultsPd.values.tolist()
     idx =  0
     for o in twitts:
