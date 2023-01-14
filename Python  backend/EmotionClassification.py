@@ -39,6 +39,8 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSequenceClassification.from_pretrained(model_name)
 model.to(device)
 features = {}
+colors = ['#f032e6', '#469990', '#000075', '#e6194B', '#f58231', '#ffe119', '#bfef45', '#3cb44b', '#800000', '#9A6324'
+'#42d4f4', '#4363d8', '#911eb4', '#a9a9a9', '#fabed4', '#ffd8b1', '#fffac8', '#aaffc3', '#dcbeff']
 
 
 def get_features(name):
@@ -243,11 +245,12 @@ def test():
 
     hashtags.append(mahalanobisHashtag + '-outliers')
     hashtagClasses = []
+    col = 0
     for hashtag in hashtags:
         results = list(filter(lambda item: item['hashtag'] == hashtag, tweets))
-        color = "#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+        color = colors[col]
         hashtagClasses.append(hashtagClass(str(uuid.uuid4()), hashtag, color, results))
-
+        col = col+1
     return Response(json.dumps(hashtagClasses, cls=JSONEncoder,indent=4), mimetype='application/json')
 
 app.run(debug=True)
