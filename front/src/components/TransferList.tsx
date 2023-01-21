@@ -102,7 +102,12 @@ export default function TransferList({ hashtags, setHashtags, pca, norm}: Props)
         console.log("PCA: ", pca().toString());
         console.log("Norm: ", norm().toString());
 
-        postFetch<HashtagType[]>({ hashtag }, `/hashtags?limit=${numberOfTweets}&mahalanobisHashtag=happy&pca=${pca()}&norm=${norm()}`).then(
+        const random = Math.floor(Math.random() * hashtag.length);
+        var mahalanobisHashtag = hashtag[random];
+
+        console.log("Mahalanobis for: ", mahalanobisHashtag);
+
+        postFetch<HashtagType[]>({ hashtag }, `/hashtags?limit=${numberOfTweets}&mahalanobisHashtag=${mahalanobisHashtag}&pca=${pca()}&norm=${norm()}`).then(
             (hashtags) => {
                 setHashtags(hashtags);
             }
