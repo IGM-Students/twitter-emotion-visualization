@@ -74,7 +74,7 @@ def LoadTweets(hashtags, limit, mahalanobisHashtag):
         userList = tweets['username'].tolist()
         i =0
         for element in tweetList:
-            masterTweetList.append(tweet(hashtag,userList[i], element, 0, 0))
+            masterTweetList.append(tweet(hashtag,userList[i], element, 0, 0, 0))
             i+=1
     mahalanobisTweets = list(filter(lambda item: item['hashtag'] == mahalanobisHashtag, masterTweetList))
     return masterTweetList, mahalanobisTweets
@@ -117,7 +117,7 @@ def CalculateMahalanobis(twitts, hashtag, components, pca, norm):
     for i in df.index:
         outTweets.append(twitts[i])
 
-    clasifficatedTweets = Clasifficate(outTweets, 2, pca, norm)
+    clasifficatedTweets = Clasifficate(outTweets, components, pca, norm)
 
     for tweet in clasifficatedTweets:
         tweet['hashtag'] = hashtag + '-outliers'
@@ -149,12 +149,13 @@ def Clasifficate(twitts, components, pca, norm):
     tweets = []
     for o in twitts:
         tweets.append(o['tweet'])
-    resultsPd = Get_PCA(Get_Features(tweets), int(components), pca, norm)
+    resultsPd = Get_PCA(Get_Features(tweets), components, pca, norm)
     results = resultsPd.values.tolist()
     idx =  0
     for o in twitts:
         o['x'] = results[idx][0]
         o['y'] = results[idx][1]
+        o['z'] = results[idx][2]
         idx = idx + 1
     return twitts
     
@@ -173,8 +174,8 @@ class hashtagClass(dict):
         dict.__init__(self, id=id, title = title, color = color, tweets = tweets)
 
 class tweet(dict):
-    def __init__(self, hashtag, user, tweet, x, y):
-        dict.__init__(self, hashtag=hashtag, user=user, tweet=tweet, x=x, y=y)
+    def __init__(self, hashtag, user, tweet, x, y, z):
+        dict.__init__(self, hashtag=hashtag, user=user, tweet=tweet, x=x, y=y, z=z)
 
 def DeEmojify(emojiList):
     for o in emojiList:
@@ -239,8 +240,8 @@ def test():
     loadedTweets, loadedMahalanobisTweets = LoadTweets(hashtags, int(limit), mahalanobisHashtag)
     tweetsList = DeEmojify(loadedTweets)
     mahalanobisTweets = DeEmojify(loadedMahalanobisTweets)
-    tweets = Clasifficate(tweetsList, 2, pca, norm)
-    CalculateMahalanobis(mahalanobisTweets, mahalanobisHashtag, 2, pca, norm)
+    tweets = Clasifficate(tweetsList, 3, pca, norm)
+    CalculateMahalanobis(mahalanobisTweets, mahalanobisHashtag, 3, pca, norm)
 
     hashtags.append(mahalanobisHashtag + '-outliers')
     hashtagClasses = []

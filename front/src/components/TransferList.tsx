@@ -17,6 +17,8 @@ type Props = {
     setHashtags: (hashtags: HashtagType[]) => void;
     pca: () => number;
     norm: () => number;
+    dimensions: number;
+    setDimensions: (dim: any) => void;
 };
 
 function not(a: readonly HashtagType[], b: readonly HashtagType[]) {
@@ -27,7 +29,7 @@ function intersection(a: readonly HashtagType[], b: readonly HashtagType[]) {
     return a.filter((value) => b.indexOf(value) !== -1);
 }
 
-export default function TransferList({ hashtags, setHashtags, pca, norm}: Props) {
+export default function TransferList({ hashtags, setHashtags, pca, norm, dimensions, setDimensions}: Props) {
     const [checked, setChecked] = useState<readonly HashtagType[]>([]);
     const [up, setUp] = useState<readonly HashtagType[]>(hashtags);
     const [down, setDown] = useState<readonly HashtagType[]>([]);
@@ -106,9 +108,9 @@ export default function TransferList({ hashtags, setHashtags, pca, norm}: Props)
         var mahalanobisHashtag = hashtag[random];
 
         console.log("Mahalanobis for: ", mahalanobisHashtag);
-
         postFetch<HashtagType[]>({ hashtag }, `/hashtags?limit=${numberOfTweets}&mahalanobisHashtag=${mahalanobisHashtag}&pca=${pca()}&norm=${norm()}`).then(
             (hashtags) => {
+                setDimensions(2);
                 setHashtags(hashtags);
             }
         );

@@ -9,9 +9,11 @@ import RowRadioButtonsGroup from "./RowRadioButtonsGroup";
 type Props = {
     hashtags: HashtagType[];
     setHashtags: (hashtags: HashtagType[]) => void;
+    dimensions: number;
+    setDimensions: (dim: any) => void;
 };
 
-export default function SideBar({ hashtags, setHashtags }: Props) {
+export default function SideBar({ hashtags, setHashtags, dimensions, setDimensions }: Props) {
     const [open, setOpen] = useState(false);
     const [pca, setPca] = useState("Standard PCA");
     const [norm, setNorm] = useState("Not normalized");
@@ -56,6 +58,8 @@ export default function SideBar({ hashtags, setHashtags }: Props) {
                             setHashtags={setHashtags}
                             pca={getPcaOption}
                             norm={getNormOption}
+                            dimensions={dimensions}
+                            setDimensions={setDimensions}
                         />
                     </Stack>
                 </Box>

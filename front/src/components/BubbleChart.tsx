@@ -60,8 +60,8 @@ function BubbleChart({ hashtags }: Props) {
         // https://www.amcharts.com/docs/v5/charts/xy-chart/axes/
         let xAxis = chart.xAxes.push(
             am5xy.ValueAxis.new(root, {
-                min: -1.1,
-                max: 1.1,
+                min: -1.25,
+                max: 1.25,
                 renderer: am5xy.AxisRendererX.new(root, {
                     minGridDistance: 50,
                 }),
@@ -69,8 +69,8 @@ function BubbleChart({ hashtags }: Props) {
         );
         let yAxis = chart.yAxes.push(
             am5xy.ValueAxis.new(root, {
-                min: -1.1,
-                max: 1.1,
+                min: -1.25,
+                max: 1.25,
                 renderer: am5xy.AxisRendererY.new(root, {}),
             })
         );
